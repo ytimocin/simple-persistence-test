@@ -12,6 +12,12 @@ class MasterViewController: UITableViewController {
 
     var detailViewController: DetailViewController? = nil
     var objects = [AnyObject]()
+    
+    var actorsFilePath : String {
+        let manager = NSFileManager.defaultManager()
+        let url = manager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first! as NSURL
+        return url.URLByAppendingPathComponent("objectsArray").path!
+    }
 
 
     override func viewDidLoad() {
@@ -25,6 +31,12 @@ class MasterViewController: UITableViewController {
             let controllers = split.viewControllers
             self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         }
+        
+        if let array = NSKeyedUnarchiver.unarchiveObjectWithFile(actorsFilePath) as? [AnyObject] {
+            objects = array
+        }
+        
+        print(actorsFilePath)
     }
 
     override func viewWillAppear(animated: Bool) {
@@ -41,6 +53,8 @@ class MasterViewController: UITableViewController {
         objects.insert(NSDate(), atIndex: 0)
         let indexPath = NSIndexPath(forRow: 0, inSection: 0)
         self.tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+        
+        NSKeyedArchiver.archiveRootObject(objects, toFile: actorsFilePath)
     }
 
     // MARK: - Segues
